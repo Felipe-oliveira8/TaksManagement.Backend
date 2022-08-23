@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TaksManagement.Backend.Entities.MongoEntities;
 using TaksManagement.Backend.Models;
 
@@ -51,18 +51,25 @@ namespace TaksManagement.Backend.Services
 
         public UserModel Create(UserModel user)
         {
-            var userEntity = Mapper.Map<UserModel, UserEntity>(user);
-            user.Id = userEntity.Id.ToString();
-            try
+            var userExist = GetUserByUsername(user.User);
+            if(userExist is null)
             {
-                users.InsertOne(userEntity);
-                return user;
+                var userEntity = Mapper.Map<UserModel, UserEntity>(user);
+                user.Id = userEntity.Id.ToString();
+                try
+                {
+                    users.InsertOne(userEntity);
+                    return user;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
             }
-            catch(Exception ex)
+            else
             {
-                throw ex;
+                throw new Exception("Usuario ja existente no sistema!");
             }
-            
         }
 
         public void Update(UserModel userUpdate)

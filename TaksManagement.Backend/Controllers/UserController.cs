@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TaksManagement.Backend.Entities;
 using TaksManagement.Backend.Models;
 using TaksManagement.Backend.Services;
 
@@ -38,9 +35,17 @@ namespace TaksManagement.Backend.Controllers
         [HttpPost]
         public ActionResult<UserModel> Create(UserModel user)
         {
-            service.Create(user);
+            try
+            {
+                service.Create(user);
+                return Created(nameof(user), user);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
 
-            return Created(nameof(user), user);
         }
 
         [HttpPut]
